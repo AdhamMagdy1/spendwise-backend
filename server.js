@@ -23,10 +23,15 @@ require('dotenv').config();
 connectToDatabase();
 
 // Define your routes
-// ...
+const userRoutes = require('./routes/userRoutes');
+const spendingRoutes = require('./routes/spendingRoutes');
+
+app.use('/api/user', userRoutes); // User-related routes
+app.use('/api/spending', spendingRoutes); // Spending-related routes
 
 // Error handling middleware
 app.use(errorHandler); // Use the error handling middleware at the end of your middleware stack
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
