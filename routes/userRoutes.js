@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { validateUser, validateBudget } = require('../middlewares/validation');
+const {
+  validateUser,
+  validateBudget,
+  validateRequest,
+} = require('../middlewares/validation'); // Import validateRequest
 const { authenticateUser } = require('../middlewares/authentication');
 const {
   createNewUser,
@@ -15,8 +19,7 @@ router.post('/login', validateUser, userLogin);
 router.put(
   '/budget',
   authenticateUser,
-  validateUser, // Apply user validation rules
-  validateRequest([body('currentBudget').custom(validateBudget)]), // Validate currentBudget
+  validateRequest([validateBudget]), // Apply user validation rules and validateBudget
   updateBudget
 );
 
