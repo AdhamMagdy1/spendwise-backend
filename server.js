@@ -1,15 +1,25 @@
 const express = require('express');
 const app = express();
-const { connectToDatabase } = require('./config/config'); 
+const { connectToDatabase } = require('./config/config');
+
+// Middleware for body parsing (JSON and form data)
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware for Cross-Origin Resource Sharing (CORS)
+const cors = require('cors');
+app.use(cors());
+
+// Logging Middleware (optional)
+const morgan = require('morgan');
+app.use(morgan('dev'));
 
 // Load environment variables
 require('dotenv').config();
 
 // Connect to the MongoDB Atlas database
 connectToDatabase();
-
-// Middleware configuration, including body parsing, CORS, and other middleware
-// ...
 
 // Define your routes
 // ...
