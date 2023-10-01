@@ -44,9 +44,17 @@ const validateSpending = [
     .notEmpty()
     .withMessage('Secondary tag cannot be empty'),
 ];
+// Custom validation for budget
+const validateBudget = (value) => {
+  if (typeof value !== 'number' || value < 0) {
+    throw new Error('Budget must be a non-negative number.');
+  }
+  return true;
+};
 
 module.exports = {
   validateRequest,
   validateSpending,
   validateUser,
+  validateBudget,
 };
