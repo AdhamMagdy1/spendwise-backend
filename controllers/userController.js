@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models/user');
+const User = require('../models/user');
 const { AppError } = require('../utils/error');
 
 // User registration (signup)
@@ -59,14 +59,14 @@ const userLogin = async (req, res, next) => {
 
     // Generate a new JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h', // Adjust token expiration as needed
+      expiresIn: '1d', // Adjust token expiration as needed
     });
 
     // Update the user's activeToken
     user.activeToken = token;
     await user.save();
 
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful', token, id: user._id });
   } catch (error) {
     next(error);
   }
@@ -81,15 +81,24 @@ const updateBudget = async (req, res, next) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
+    console.log(req.user._id); // Add this line for debugging
+
     // Find the authenticated user by ID
     const user = await User.findById(req.user._id);
+    console.log(user); // Add this line for debugging
 
     if (!user) {
       throw new AppError('User not found.', 404);
     }
 
-    // Update the user's currentBudget
-    user.currentBudget = req.body.currentBudget; // Assuming the request body contains the new budget
+    // Validate and update the user's currentBudget
+    const newBudget = parseFloat(req.body.currentBudget);
+
+    if (isNaN(newBudget) || newBudget < 0) {
+      throw new AppError('Invalid budget value.', 400);
+    }
+
+    user.currentBudget = newBudget;
     await user.save();
 
     res.json({

@@ -35,6 +35,6 @@ const userSchema = new mongoose.Schema({
   currentBudget: Number, // You can specify the data type based on your budget requirements
   spending: [spendingSchema], // Embed the spending records as an array
 });
-
+const User = mongoose.model('User', userSchema);
 // Create and export the User model
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
+  validateUserLogin,
   validateUser,
   validateBudget,
   validateRequest,
@@ -15,7 +16,7 @@ const {
 
 // Define routes
 router.post('/signup', validateUser, createNewUser);
-router.post('/login', validateUser, userLogin);
+router.post('/login', validateUserLogin, userLogin);
 // Update user's current budget
 router.put(
   '/budget',

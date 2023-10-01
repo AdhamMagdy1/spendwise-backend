@@ -29,6 +29,12 @@ const validateUser = [
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
 ];
+const validateUserLogin = [
+  body('email').isEmail().withMessage('Invalid email address'),
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters long'),
+];
 
 // Validation rules for creating/editing spending records
 const validateSpending = [
@@ -57,4 +63,5 @@ module.exports = {
   validateSpending,
   validateUser,
   validateBudget,
+  validateUserLogin,
 };
