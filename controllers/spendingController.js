@@ -33,7 +33,6 @@ const getSpendingWithRange = async (req, res, next) => {
   }
 };
 
-// Create a new spending record for the authenticated user
 const createSpendingRecord = async (req, res, next) => {
   try {
     // Validation checks using express-validator
@@ -49,6 +48,17 @@ const createSpendingRecord = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
+    // Calculate the new budget after adding the spending record
+    const newBudget = user.currentBudget - req.body.price;
+
+    // Check if the user has enough budget
+    if (newBudget < 0) {
+      throw new AppError(
+        'Not enough budget to create this spending record.',
+        400
+      );
+    }
+
     // Create a new spending record
     const newSpendingRecord = {
       date: req.body.date,
@@ -61,7 +71,10 @@ const createSpendingRecord = async (req, res, next) => {
     // Add the new spending record to the user's spending array
     user.spending.push(newSpendingRecord);
 
-    // Save the updated user with the new spending record
+    // Update the user's currentBudget
+    user.currentBudget = newBudget;
+
+    // Save the updated user with the new spending record and updated currentBudget
     await user.save();
 
     res.status(201).json({
@@ -73,7 +86,6 @@ const createSpendingRecord = async (req, res, next) => {
   }
 };
 
-// Edit an existing spending record for the authenticated user
 const editSpendingRecord = async (req, res, next) => {
   try {
     // Validation checks using express-validator
@@ -96,6 +108,20 @@ const editSpendingRecord = async (req, res, next) => {
       throw new AppError('Spending record not found.', 404);
     }
 
+    // Calculate the difference in price between the new price and the old price
+    const priceDifference = req.body.price - spendingRecord.price;
+
+    // Calculate the new budget after updating the spending record
+    const newBudget = user.currentBudget + priceDifference;
+
+    // Check if the user has enough budget after the update
+    if (newBudget < 0) {
+      throw new AppError(
+        'Not enough budget to update this spending record.',
+        400
+      );
+    }
+
     // Update spending record properties
     spendingRecord.date = req.body.date;
     spendingRecord.product = req.body.product;
@@ -103,7 +129,10 @@ const editSpendingRecord = async (req, res, next) => {
     spendingRecord.primaryTag = req.body.primaryTag;
     spendingRecord.secondaryTag = req.body.secondaryTag;
 
-    // Save the updated user with the edited spending record
+    // Update the user's currentBudget
+    user.currentBudget = newBudget;
+
+    // Save the updated user with the edited spending record and updated currentBudget
     await user.save();
 
     res.json({
@@ -115,7 +144,21 @@ const editSpendingRecord = async (req, res, next) => {
   }
 };
 
-// Delete an existing spending record for the authenticated user
+// Get all spending records for the authenticated user
+const getAllSpendingRecords = async (req, res, next) => {
+  try {
+    // Find the authenticated user by ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new AppError('User not found.', 404);
+    }
+
+    res.json({ spendingRecords: user.spending });
+  } catch (error) {
+    next(error);
+  }
+};
 const deleteSpendingRecord = async (req, res, next) => {
   try {
     // Find the authenticated user by ID
@@ -132,27 +175,15 @@ const deleteSpendingRecord = async (req, res, next) => {
       throw new AppError('Spending record not found.', 404);
     }
 
+    // Update the user's currentBudget by adding back the price of the deleted spending record
+    user.currentBudget += spendingRecord.price;
+
     spendingRecord.remove();
 
-    // Save the user with the removed spending record
+    // Save the user with the removed spending record and updated currentBudget
     await user.save();
 
     res.json({ message: 'Spending record deleted successfully' });
-  } catch (error) {
-    next(error);
-  }
-};
-// Get all spending records for the authenticated user
-const getAllSpendingRecords = async (req, res, next) => {
-  try {
-    // Find the authenticated user by ID
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      throw new AppError('User not found.', 404);
-    }
-
-    res.json({ spendingRecords: user.spending });
   } catch (error) {
     next(error);
   }
