@@ -10,6 +10,7 @@ const {
   createNewUser,
   userLogin,
   updateBudget,
+  getCurrentBudget,
 } = require('../controllers/userController');
 
 // Define routes
@@ -22,5 +23,7 @@ router.put(
   validateRequest([validateBudget]), // Apply user validation rules and validateBudget
   updateBudget
 );
+// Get the current budget of the authenticated user
+router.get('/budget/current', authenticateUser, getCurrentBudget);
 
 module.exports = router;

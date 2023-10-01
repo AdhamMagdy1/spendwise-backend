@@ -101,8 +101,24 @@ const updateBudget = async (req, res, next) => {
   }
 };
 
+// Get the current budget of the authenticated user
+const getCurrentBudget = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new AppError('User not found.', 404);
+    }
+
+    res.json({ currentBudget: user.currentBudget });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createNewUser,
   userLogin,
   updateBudget,
+  getCurrentBudget, // Add getCurrentBudget to exports
 };
