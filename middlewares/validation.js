@@ -1,4 +1,4 @@
-const { validationResult } = require('express-validator');
+const { validationResult, body } = require('express-validator');
 const { AppError } = require('../utils/error');
 
 // Middleware function for request validation using express-validator
