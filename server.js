@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const { connectToDatabase } = require('./config/config');
+const { errorHandler } = require('./utils/error');
 
 // Middleware for body parsing (JSON and form data)
 const bodyParser = require('body-parser');
@@ -24,6 +25,8 @@ connectToDatabase();
 // Define your routes
 // ...
 
+// Error handling middleware
+app.use(errorHandler); // Use the error handling middleware at the end of your middleware stack
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
