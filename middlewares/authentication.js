@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { AppError } = require('../utils/error');
-const User = require('../models/user'); // Import your User model
+const User = require('../models/user');
 
 // Middleware function to authenticate user requests
 const authenticateUser = async (req, res, next) => {
@@ -24,7 +24,12 @@ const authenticateUser = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
-    // 6. Attach the user object to the request for use in route handlers
+    // 6. Check if the provided token matches the activeToken
+    if (token !== user.activeToken) {
+      throw new AppError('Invalid token.', 401);
+    }
+
+    // 7. Attach the user object to the request for use in route handlers
     req.user = user;
     next();
   } catch (error) {
