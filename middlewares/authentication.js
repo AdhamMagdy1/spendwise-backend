@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { AppError } = require('../utils/error');
-const { User } = require('../models/user'); // Import your User model
+const User = require('../models/user'); // Import your User model
 
 // Middleware function to authenticate user requests
 const authenticateUser = async (req, res, next) => {

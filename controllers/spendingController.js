@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const { User } = require('../models/user');
+const  User  = require('../models/user');
 const { AppError } = require('../utils/error');
 
 // Get spending records within a date range for the authenticated user
