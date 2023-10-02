@@ -9,7 +9,7 @@ const {
   deleteSpendingRecord,
   getAllSpendingRecords,
   getSpendingByPrimaryTag,
-  getSpendingBySecondaryTag
+  getSpendingBySecondaryTag,
 } = require('../controllers/spendingController');
 
 router.get(
@@ -34,6 +34,10 @@ router.delete('/spending/:id', authenticateUser, deleteSpendingRecord);
 router.get('/spending', authenticateUser, getAllSpendingRecords);
 
 router.get('/spending/primary-tag', authenticateUser, getSpendingByPrimaryTag);
-router.get('/spending/secondary-tag', authenticateUser, getSpendingBySecondaryTag);
+router.get(
+  '/spending/secondary-tag',
+  authenticateUser,
+  getSpendingBySecondaryTag
+);
 
 module.exports = router;

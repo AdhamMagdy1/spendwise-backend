@@ -11,7 +11,7 @@ async function connectToDatabase() {
     await mongoose.connect(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      dbName: 'SpendWise', 
+      dbName: 'SpendWise',
     });
     console.log('Connected to the database');
     db = mongoose.connection;

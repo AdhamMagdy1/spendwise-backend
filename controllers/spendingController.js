@@ -242,7 +242,10 @@ const getSpendingByPrimaryTag = async (req, res, next) => {
 
     // Check if there are any matching spending records
     if (spendingRecords.length === 0) {
-      throw new AppError(`No spending records found for primary tag: ${primaryTag}`, 404);
+      throw new AppError(
+        `No spending records found for primary tag: ${primaryTag}`,
+        404
+      );
     }
 
     res.json({ spendingRecords });
@@ -250,7 +253,6 @@ const getSpendingByPrimaryTag = async (req, res, next) => {
     next(error);
   }
 };
-
 
 const getSpendingBySecondaryTag = async (req, res, next) => {
   try {
@@ -271,7 +273,10 @@ const getSpendingBySecondaryTag = async (req, res, next) => {
 
     // Check if there are any matching spending records
     if (spendingRecords.length === 0) {
-      throw new AppError(`No spending records found for secondary tag: ${secondaryTag}`, 404);
+      throw new AppError(
+        `No spending records found for secondary tag: ${secondaryTag}`,
+        404
+      );
     }
 
     res.json({ spendingRecords });
@@ -288,5 +293,4 @@ module.exports = {
   getAllSpendingRecords,
   getSpendingByPrimaryTag,
   getSpendingBySecondaryTag,
-  
 };
