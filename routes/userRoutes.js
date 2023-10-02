@@ -4,7 +4,6 @@ const {
   validateUserLogin,
   validateUser,
   validateBudget,
-  validateRequest,
 } = require('../middlewares/validation'); // Import validateRequest
 const { authenticateUser } = require('../middlewares/authentication');
 const {
@@ -21,7 +20,7 @@ router.post('/login', validateUserLogin, userLogin);
 router.put(
   '/budget',
   authenticateUser,
-  validateRequest([validateBudget]), // Apply user validation rules and validateBudget
+  validateBudget, // Apply user validation rules and validateBudget
   updateBudget
 );
 // Get the current budget of the authenticated user

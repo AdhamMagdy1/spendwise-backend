@@ -1,5 +1,5 @@
 const { validationResult } = require('express-validator');
-const  User  = require('../models/user');
+const User = require('../models/user');
 const { AppError } = require('../utils/error');
 
 // Get spending records within a date range for the authenticated user
@@ -18,16 +18,44 @@ const getSpendingWithRange = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
-    // Fetch spending records within the specified date range for the user
-    const startDate = new Date(req.body.startDate);
-    const endDate = new Date(req.body.endDate);
+    // Convert startDate and endDate to Date objects
+    const startDate = new Date(req.query.startDate);
+    const endDate = new Date(req.query.endDate);
     endDate.setHours(23, 59, 59, 999);
 
-    const spendingRecords = user.spending.filter((record) => {
-      return record.date >= startDate && record.date <= endDate;
-    });
+    // Query the database to find spending records within the specified date range
+    const spendingRecords = await User.aggregate([
+      {
+        $match: {
+          _id: user._id,
+          'spending.date': {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+      },
+      {
+        $unwind: '$spending',
+      },
+      {
+        $match: {
+          'spending.date': {
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          spending: 1,
+        },
+      },
+    ]);
 
-    res.json({ spendingRecords });
+    res.json({
+      spendingRecords: spendingRecords.map((record) => record.spending),
+    });
   } catch (error) {
     next(error);
   }
@@ -61,7 +89,7 @@ const createSpendingRecord = async (req, res, next) => {
 
     // Create a new spending record
     const newSpendingRecord = {
-      date: req.body.date,
+      date: new Date(req.body.date),
       product: req.body.product,
       price: req.body.price,
       primaryTag: req.body.primaryTag,
@@ -112,7 +140,7 @@ const editSpendingRecord = async (req, res, next) => {
     const priceDifference = req.body.price - spendingRecord.price;
 
     // Calculate the new budget after updating the spending record
-    const newBudget = user.currentBudget + priceDifference;
+    const newBudget = user.currentBudget - priceDifference;
 
     // Check if the user has enough budget after the update
     if (newBudget < 0) {
@@ -123,7 +151,7 @@ const editSpendingRecord = async (req, res, next) => {
     }
 
     // Update spending record properties
-    spendingRecord.date = req.body.date;
+    spendingRecord.date = new Date(req.body.date);
     spendingRecord.product = req.body.product;
     spendingRecord.price = req.body.price;
     spendingRecord.primaryTag = req.body.primaryTag;
@@ -168,22 +196,85 @@ const deleteSpendingRecord = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
-    // Find and remove the spending record within the user's spending array by its index
-    const spendingRecord = user.spending.id(req.params.id);
+    // Find the index of the spending record within the user's spending array by its ID
+    const spendingRecordIndex = user.spending.findIndex(
+      (record) => record._id.toString() === req.params.id
+    );
 
-    if (!spendingRecord) {
+    if (spendingRecordIndex === -1) {
       throw new AppError('Spending record not found.', 404);
     }
 
-    // Update the user's currentBudget by adding back the price of the deleted spending record
-    user.currentBudget += spendingRecord.price;
+    // Get the price of the spending record before removing it
+    const spendingRecordPrice = user.spending[spendingRecordIndex].price;
 
-    spendingRecord.remove();
+    // Update the user's currentBudget by adding back the price of the deleted spending record
+    user.currentBudget += spendingRecordPrice;
+
+    // Remove the spending record from the array
+    user.spending.splice(spendingRecordIndex, 1);
 
     // Save the user with the removed spending record and updated currentBudget
     await user.save();
 
     res.json({ message: 'Spending record deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getSpendingByPrimaryTag = async (req, res, next) => {
+  try {
+    // Find the authenticated user by ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new AppError('User not found.', 404);
+    }
+
+    // Extract the primary tag from the request query
+    const primaryTag = req.query.primaryTag;
+
+    // Filter spending records by the specified primary tag
+    const spendingRecords = user.spending.filter((record) => {
+      return record.primaryTag === primaryTag;
+    });
+
+    // Check if there are any matching spending records
+    if (spendingRecords.length === 0) {
+      throw new AppError(`No spending records found for primary tag: ${primaryTag}`, 404);
+    }
+
+    res.json({ spendingRecords });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+const getSpendingBySecondaryTag = async (req, res, next) => {
+  try {
+    // Find the authenticated user by ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new AppError('User not found.', 404);
+    }
+
+    // Extract the secondary tag from the request query
+    const secondaryTag = req.query.secondaryTag;
+
+    // Filter spending records by the specified secondary tag
+    const spendingRecords = user.spending.filter((record) => {
+      return record.secondaryTag === secondaryTag;
+    });
+
+    // Check if there are any matching spending records
+    if (spendingRecords.length === 0) {
+      throw new AppError(`No spending records found for secondary tag: ${secondaryTag}`, 404);
+    }
+
+    res.json({ spendingRecords });
   } catch (error) {
     next(error);
   }
@@ -195,4 +286,7 @@ module.exports = {
   editSpendingRecord,
   deleteSpendingRecord,
   getAllSpendingRecords,
+  getSpendingByPrimaryTag,
+  getSpendingBySecondaryTag,
+  
 };

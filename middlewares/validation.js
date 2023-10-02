@@ -1,4 +1,4 @@
-const { validationResult, body } = require('express-validator');
+const { validationResult, body, query } = require('express-validator');
 const { AppError } = require('../utils/error');
 
 // Middleware function for request validation using express-validator
@@ -38,9 +38,17 @@ const validateUserLogin = [
 
 // Validation rules for creating/editing spending records
 const validateSpending = [
-  body('date').isDate().withMessage('Date must be a valid date'),
+  body('date').isISO8601().withMessage('Date must be in ISO 8601 format'),
   body('product').notEmpty().withMessage('Product name is required'),
-  body('price').isNumeric().withMessage('Price must be a valid number'),
+  body('price')
+    .isNumeric()
+    .withMessage('Price must be a valid number')
+    .custom((value) => {
+      if (value <= 0) {
+        throw new Error('Price must be grater than zero');
+      }
+      return true;
+    }),
   body('primaryTag')
     .optional()
     .notEmpty()
@@ -50,13 +58,33 @@ const validateSpending = [
     .notEmpty()
     .withMessage('Secondary tag cannot be empty'),
 ];
+
 // Custom validation for budget
-const validateBudget = (value) => {
-  if (typeof value !== 'number' || value < 0) {
-    throw new Error('Budget must be a non-negative number.');
-  }
-  return true;
-};
+const validateBudget = [
+  body('currentBudget')
+    .isNumeric()
+    .withMessage('Budget must be a valid number')
+    .custom((value) => {
+      if (value < 0) {
+        throw new Error('Budget must be a positive number or zero');
+      }
+      return true;
+    }),
+];
+
+// Custom validation for date format (start and end date)
+const validateDate = [
+  query('startDate')
+    .isISO8601()
+    .withMessage(
+      'Invalid startDate format. Use ISO 8601 format (e.g., "2023-09-30T14:00:00.000Z")'
+    ),
+  query('endDate')
+    .isISO8601()
+    .withMessage(
+      'Invalid endDate format. Use ISO 8601 format (e.g., "2023-09-30T14:00:00.000Z")'
+    ),
+];
 
 module.exports = {
   validateRequest,
@@ -64,4 +92,5 @@ module.exports = {
   validateUser,
   validateBudget,
   validateUserLogin,
+  validateDate, // Add the validateDate export
 };
