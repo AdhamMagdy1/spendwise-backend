@@ -22,13 +22,14 @@ const createNewUser = async (req, res, next) => {
     // Hash the password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-    // Create a new user with initial activeToken and currentBudget
+    // Create a new user with initial activeToken, currentBudget, and joinDate
     const newUser = new User({
       name: req.body.name,
       email: req.body.email,
       password: hashedPassword,
       activeToken: '',
       currentBudget: 0,
+      joinDate: new Date().toISOString(), // Set joinDate to today's date in ISO 8601 format
     });
 
     // Save the user to the database
@@ -125,9 +126,29 @@ const getCurrentBudget = async (req, res, next) => {
   }
 };
 
+// Get the join date of the authenticated user
+const getUserJoinDate = async (req, res, next) => {
+  try {
+    // Find the authenticated user by ID
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      throw new AppError('User not found.', 404);
+    }
+
+    // Extract and send the join date in the specified format
+    const joinDate = user.joinDate;
+
+    res.json({ joinDate });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createNewUser,
   userLogin,
   updateBudget,
   getCurrentBudget, // Add getCurrentBudget to exports
+  getUserJoinDate,
 };

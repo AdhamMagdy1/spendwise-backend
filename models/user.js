@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  joinDate: Date,
   activeToken: String, // You can specify the data type based on your token requirements
   currentBudget: Number, // You can specify the data type based on your budget requirements
   spending: [spendingSchema], // Embed the spending records as an array

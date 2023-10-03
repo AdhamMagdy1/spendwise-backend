@@ -11,6 +11,7 @@ const {
   userLogin,
   updateBudget,
   getCurrentBudget,
+  getUserJoinDate,
 } = require('../controllers/userController');
 
 // Define routes
@@ -25,5 +26,8 @@ router.put(
 );
 // Get the current budget of the authenticated user
 router.get('/budget/current', authenticateUser, getCurrentBudget);
+
+// Get the UserJoinDate of the authenticated user
+router.get('/joinDate', authenticateUser, getUserJoinDate);
 
 module.exports = router;
