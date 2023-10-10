@@ -155,9 +155,11 @@ const editSpendingRecord = async (req, res, next) => {
         400
       );
     }
+     // Format the date to "yyyy-mm-dd" format
+     const formattedDate = new Date(req.body.date).toISOString().split('T')[0];
 
     // Update spending record properties
-    spendingRecord.date = new Date(req.body.date);
+    spendingRecord.date = formattedDate;
     spendingRecord.product = req.body.product;
     spendingRecord.price = req.body.price;
     spendingRecord.primaryTag = req.body.primaryTag.toUpperCase();
