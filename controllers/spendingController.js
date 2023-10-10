@@ -21,7 +21,10 @@ const getSpendingWithRange = async (req, res, next) => {
     // Convert startDate and endDate to Date objects
     const startDate = new Date(req.query.startDate);
     const endDate = new Date(req.query.endDate);
-    endDate.setHours(23, 59, 59, 999);
+
+    // Extract date strings in "YYYY-MM-DD" format from the input date objects
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
 
     // Query the database to find spending records within the specified date range
     const spendingRecords = await User.aggregate([
@@ -29,8 +32,8 @@ const getSpendingWithRange = async (req, res, next) => {
         $match: {
           _id: user._id,
           'spending.date': {
-            $gte: startDate,
-            $lte: endDate,
+            $gte: new Date(startDateStr),
+            $lte: new Date(endDateStr),
           },
         },
       },
@@ -40,8 +43,8 @@ const getSpendingWithRange = async (req, res, next) => {
       {
         $match: {
           'spending.date': {
-            $gte: startDate,
-            $lte: endDate,
+            $gte: new Date(startDateStr),
+            $lte: new Date(endDateStr),
           },
         },
       },
@@ -87,9 +90,12 @@ const createSpendingRecord = async (req, res, next) => {
       );
     }
 
+    // Format the date to "yyyy-mm-dd" format
+    const formattedDate = new Date(req.body.date).toISOString().split('T')[0];
+
     // Create a new spending record
     const newSpendingRecord = {
-      date: new Date(req.body.date),
+      date: formattedDate,
       product: req.body.product,
       price: req.body.price,
       primaryTag: req.body.primaryTag.toUpperCase(),
