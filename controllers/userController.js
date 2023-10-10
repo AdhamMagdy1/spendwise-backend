@@ -25,7 +25,7 @@ const createNewUser = async (req, res, next) => {
     // Create a new user with initial activeToken, currentBudget, and joinDate
     const newUser = new User({
       name: req.body.name,
-      email: req.body.email,
+      email: req.body.email.toLowerCase() ,
       password: hashedPassword,
       activeToken: '',
       currentBudget: 0,
@@ -51,7 +51,7 @@ const userLogin = async (req, res, next) => {
     }
 
     // Find the user by email
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email.toLowerCase() });
 
     // Check if the user exists and compare passwords
     if (!user || !(await bcrypt.compare(req.body.password, user.password))) {

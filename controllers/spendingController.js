@@ -92,8 +92,8 @@ const createSpendingRecord = async (req, res, next) => {
       date: new Date(req.body.date),
       product: req.body.product,
       price: req.body.price,
-      primaryTag: req.body.primaryTag,
-      secondaryTag: req.body.secondaryTag,
+      primaryTag: req.body.primaryTag.toUpperCase(),
+      secondaryTag: req.body.secondaryTag.toUpperCase(),
     };
 
     // Add the new spending record to the user's spending array
@@ -154,10 +154,10 @@ const editSpendingRecord = async (req, res, next) => {
     spendingRecord.date = new Date(req.body.date);
     spendingRecord.product = req.body.product;
     spendingRecord.price = req.body.price;
-    spendingRecord.primaryTag = req.body.primaryTag;
-    spendingRecord.secondaryTag = req.body.secondaryTag;
+    spendingRecord.primaryTag = req.body.primaryTag.toUpperCase();
+    spendingRecord.secondaryTag = req.body.secondaryTag.toUpperCase();
 
-    // Update the user's currentBudget
+    // // Update the user's currentBudget
     user.currentBudget = newBudget;
 
     // Save the updated user with the edited spending record and updated currentBudget
@@ -233,7 +233,7 @@ const getSpendingByPrimaryTag = async (req, res, next) => {
     }
 
     // Extract the primary tag from the request query
-    const primaryTag = req.query.primaryTag;
+    const primaryTag = req.query.primaryTag.toUpperCase();
 
     // Filter spending records by the specified primary tag
     const spendingRecords = user.spending.filter((record) => {
@@ -264,7 +264,7 @@ const getSpendingBySecondaryTag = async (req, res, next) => {
     }
 
     // Extract the secondary tag from the request query
-    const secondaryTag = req.query.secondaryTag;
+    const secondaryTag = req.query.secondaryTag.toUpperCase();
 
     // Filter spending records by the specified secondary tag
     const spendingRecords = user.spending.filter((record) => {
