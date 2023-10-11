@@ -18,13 +18,9 @@ const getSpendingWithRange = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
-    // Convert startDate and endDate to Date objects
-    const startDate = new Date(req.query.startDate);
-    const endDate = new Date(req.query.endDate);
-
-    // Extract date strings in "YYYY-MM-DD" format from the input date objects
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
+    // Convert startDate and endDate to strings
+    const startDateStr = req.query.startDate.split('T')[0];
+    const endDateStr = req.query.endDate.split('T')[0];
 
     // Query the database to find spending records within the specified date range
     const spendingRecords = await User.aggregate([
@@ -32,8 +28,8 @@ const getSpendingWithRange = async (req, res, next) => {
         $match: {
           _id: user._id,
           'spending.date': {
-            $gte: new Date(startDateStr),
-            $lte: new Date(endDateStr),
+            $gte: new Date(startDateStr + 'T00:00:00.000Z'),
+            $lte: new Date(endDateStr + 'T23:59:59.999Z'),
           },
         },
       },
@@ -43,8 +39,8 @@ const getSpendingWithRange = async (req, res, next) => {
       {
         $match: {
           'spending.date': {
-            $gte: new Date(startDateStr),
-            $lte: new Date(endDateStr),
+            $gte: new Date(startDateStr + 'T00:00:00.000Z'),
+            $lte: new Date(endDateStr + 'T23:59:59.999Z'),
           },
         },
       },
@@ -155,8 +151,8 @@ const editSpendingRecord = async (req, res, next) => {
         400
       );
     }
-     // Format the date to "yyyy-mm-dd" format
-     const formattedDate = new Date(req.body.date).toISOString().split('T')[0];
+    // Format the date to "yyyy-mm-dd" format
+    const formattedDate = new Date(req.body.date).toISOString().split('T')[0];
 
     // Update spending record properties
     spendingRecord.date = formattedDate;
