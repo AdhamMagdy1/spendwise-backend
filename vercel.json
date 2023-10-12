@@ -1,3 +1,0 @@
-{
-    "rewrites": [{ "source": ":5000/api/(.*)", "destination": "/api" }]
-  }
