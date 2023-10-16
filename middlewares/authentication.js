@@ -24,10 +24,10 @@ const authenticateUser = async (req, res, next) => {
       throw new AppError('User not found.', 404);
     }
 
-    // 6. Check if the provided token matches the activeToken
-    if (token !== user.activeToken) {
-      throw new AppError('Invalid token.', 401);
-    }
+    // // 6. Check if the provided token matches the activeToken
+    // if (token !== user.activeToken) {
+    //   throw new AppError('Invalid token.', 401);
+    // }
 
     // 7. Attach the user object to the request for use in route handlers
     req.user = user;

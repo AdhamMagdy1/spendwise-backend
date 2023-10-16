@@ -25,7 +25,7 @@ const createNewUser = async (req, res, next) => {
     // Create a new user with initial activeToken, currentBudget, and joinDate
     const newUser = new User({
       name: req.body.name,
-      email: req.body.email.toLowerCase() ,
+      email: req.body.email.toLowerCase(),
       password: hashedPassword,
       activeToken: '',
       currentBudget: 0,
@@ -60,14 +60,19 @@ const userLogin = async (req, res, next) => {
 
     // Generate a new JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d', // Adjust token expiration as needed
+      expiresIn: '1w', // Adjust token expiration as needed
     });
 
     // Update the user's activeToken
-    user.activeToken = token;
-    await user.save();
+    //user.activeToken = token;
+    // await user.save();
 
-    res.json({ message: 'Login successful', token, id: user._id });
+    res.json({
+      message: 'Login successful',
+      token,
+      id: user._id,
+      name: user.name,
+    });
   } catch (error) {
     next(error);
   }
