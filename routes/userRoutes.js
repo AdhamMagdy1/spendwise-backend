@@ -30,4 +30,8 @@ router.get('/budget/current', authenticateUser, getCurrentBudget);
 // Get the UserJoinDate of the authenticated user
 router.get('/joinDate', authenticateUser, getUserJoinDate);
 
+router.get('/ok', (req, res) => {
+  res.status(200).send('OK');
+});
+
 module.exports = router;
